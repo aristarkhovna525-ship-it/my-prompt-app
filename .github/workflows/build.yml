@@ -23,9 +23,9 @@ jobs:
           pip install --upgrade pip
           pip install "cython<3.0.0" virtualenv buildozer
 
-      - name: Compile APK
+      - name: Set Permissions & Compile APK
         run: |
+          # Выдаем права администратора на текущую папку, чтобы Buildozer не вылетал
+          sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
-          # Принудительно принимаем лицензии Android без бесконечных циклов
-          buildozer android licenses
           buildozer android debug
