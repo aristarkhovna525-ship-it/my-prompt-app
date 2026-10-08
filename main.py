@@ -28,12 +28,11 @@ jobs:
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
           
-          # Автоматически генерируем согласия с лицензиями без использования команды yes
-          mkdir -p ~/.android/Sdk/licenses || true
-          echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a" > ~/.android/Sdk/licenses/android-sdk-license
+          # Официальный тихий способ подписи лицензий Android SDK
+          buildozer android licenses
           
-          # Запускаем чистую сборку с тихим флагом лицензий
-          buildozer android debug --accept-sdk-license
+          # Запуск чистой сборки без лишних флагов
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
