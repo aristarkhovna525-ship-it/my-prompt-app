@@ -23,18 +23,22 @@ jobs:
           pip install --upgrade pip
           pip install "cython<3.0.0" virtualenv buildozer
 
-      - name: Compile Application
+      - name: Clean & Pre-accept Android Licenses & Compile
         run: |
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
           
-          # Официальный тихий способ подписи лицензий Android SDK
-          buildozer android licenses
+          # Очищаем старые зависшие процессы кэша
+          buildozer android clean || true
           
-          # Запуск чистой сборки без лишних флагов
+          # Жестко прописываем хэши лицензий Google, чтобы проскочить любые вопросы
+          mkdir -p ~/.android/Sdk/licenses || true
+          echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a" > ~/.android/Sdk/licenses/android-sdk-license
+          
+          # Запускаем чистую сборку приложения
           buildozer android debug
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: compiled-apk
