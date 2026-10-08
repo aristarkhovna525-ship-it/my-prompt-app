@@ -25,12 +25,10 @@ jobs:
 
       - name: Pre-Accept All Android Licenses
         run: |
-          # Создаем папки лицензий во всех возможных путях Android SDK
           mkdir -p ~/.android/Sdk/licenses || true
           mkdir -p ~/.android/licenses || true
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses || true
           
-          # Записываем официальные хэши соглашений Google
           HASHES="8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a\n84831b9409646a918e30573bab4c9c91346d8abd"
           
           echo -e "$HASHES" > ~/.android/Sdk/licenses/android-sdk-license
@@ -41,8 +39,6 @@ jobs:
         run: |
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
-          
-          # Очищаем старые битые кэши и запускаем чистую автоматическую сборку
           buildozer android clean || true
           buildozer android debug
 
@@ -50,4 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled-apk
-          path: bin/*.apk
+          # Ищем APK-файл в абсолютно любой подпапке проекта, чтобы не потерять его
+          path: "**/*.apk"
