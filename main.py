@@ -23,10 +23,15 @@ jobs:
           pip install --upgrade pip
           pip install "cython<3.0.0" virtualenv buildozer
 
-      - name: Compile Application
+      - name: Pre-accept Android Licenses & Compile
         run: |
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
-          # Принудительно принимаем лицензии Android без бесконечных циклов
-          buildozer android licenses
+          
+          # Жестко прописываем хэши лицензий Google Android SDK, чтобы проскочить любые вопросы
+          mkdir -p ~/.android/Sdk/licenses || true
+          echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a" > ~/.android/Sdk/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/Sdk/licenses/android-sdk-preview-license
+          
+          # Запускаем сборку в чистом автоматическом режиме
           buildozer android debug
