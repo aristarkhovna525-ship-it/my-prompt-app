@@ -46,5 +46,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled-apk
-          # Ищем APK-файл в абсолютно любой подпапке проекта, чтобы не потерять его
           path: "**/*.apk"
