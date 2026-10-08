@@ -25,15 +25,8 @@ jobs:
 
       - name: Compile Application
         run: |
-          # Исправляем права доступа для компилятора NDK
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
-          # Принудительно принимаем все лицензии Android SDK автоматически
-          yes | buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: compiled-apk
-          path: bin/*.apk
-    
+          # Принудительно принимаем лицензии Android без бесконечных циклов
+          buildozer android licenses
+          buildozer android debug
