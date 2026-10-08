@@ -13,36 +13,29 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev cmake
 
-      - name: Install Buildozer and Cython Fix
+      - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install "cython<3.0.0" virtualenv buildozer
 
-      - name: Pre-Accept All Android Licenses
-        run: |
-          mkdir -p ~/.android/Sdk/licenses || true
-          mkdir -p ~/.android/licenses || true
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses || true
-          
-          HASHES="8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a\n84831b9409646a918e30573bab4c9c91346d8abd"
-          
-          echo -e "$HASHES" > ~/.android/Sdk/licenses/android-sdk-license
-          echo -e "$HASHES" > ~/.android/licenses/android-sdk-license
-          echo -e "$HASHES" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-      - name: Clean and Compile APK
+      - name: Compile Application
         run: |
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
-          buildozer android clean || true
-          buildozer android debug
+          
+          # Автоматически генерируем согласия с лицензиями без использования команды yes
+          mkdir -p ~/.android/Sdk/licenses || true
+          echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a" > ~/.android/Sdk/licenses/android-sdk-license
+          
+          # Запускаем чистую сборку с тихим флагом лицензий
+          buildozer android debug --accept-sdk-license
 
-      - name: Upload Finished APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: compiled-apk
