@@ -36,9 +36,12 @@ jobs:
   - name: Compile Application
     env:
       _JAVA_OPTIONS: "-Xmx2048m -Xms512m"
-    run: |
+    run:
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        sudo apt-get install -y android-sdk
+
       export BUILDOZER_ALLOW_KIVY_ROOT=1
-      buildozer android debug
+        buildozer android debug
 
         with:
           name: compiled-apk
