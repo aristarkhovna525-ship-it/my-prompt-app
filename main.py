@@ -30,7 +30,9 @@ jobs:
           
           # Очищаем старые зависшие процессы кэша
           buildozer android clean || true
-          
+            - name: Setup Android SDK
+    uses: android-actions/setup-android@v3
+
           # Жестко прописываем хэши лицензий Google, чтобы проскочить любые вопросы
           mkdir -p ~/.android/Sdk/licenses || true
           echo -e "\n8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a" > ~/.android/Sdk/licenses/android-sdk-license
