@@ -11,6 +11,7 @@ package.domain = org.test
 
 # (str) Source code where the main.py lives
 source.dir = .
+android.gradle_options = "-Xmx2048m -XX:MaxMetaspaceSize=512m"
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
