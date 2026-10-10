@@ -14,9 +14,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK Environment
-        uses: android-actions/setup-android@v3
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -33,7 +30,11 @@ jobs:
         run: |
           sudo chown -R runner:docker .
           
-          # Запуск прямой сборки через настроенные системные пути Google SDK
+          # Явно прописываем официальные встроенные пути к Android SDK и NDK на серверах GitHub
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+          
+          # Запуск сборки напрямую через системное окружение
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
