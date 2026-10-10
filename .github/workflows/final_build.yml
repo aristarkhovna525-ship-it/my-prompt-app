@@ -3,7 +3,8 @@ on: [push, workflow_dispatch]
 
 jobs:
   build_apk:
-    runs-on: ubuntu-latest
+    # Переключаемся на полностью совместимую среду окружения
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,11 +31,11 @@ jobs:
         run: |
           sudo chown -R runner:docker .
           
-          # Явно прописываем официальные встроенные пути к Android SDK и NDK на серверах GitHub
+          # Явно прописываем системные пути к Android SDK и NDK
           export ANDROID_SDK_ROOT=$ANDROID_HOME
           export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
           
-          # Запуск сборки с использованием встроенного ffi без перекомпиляции макросов
+          # Запуск прямой автоматической сборки приложения
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
