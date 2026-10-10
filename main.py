@@ -18,33 +18,31 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev cmake
 
-      - name: Install Buildozer
+      - name: Install Buildozer and Cython Fix
         run: |
           pip install --upgrade pip
           pip install "cython<3.0.0" virtualenv buildozer
 
-      - name: Clean & Pre-accept Android Licenses & Compile
+      - name: Pre-Accept Android Licenses
+        run: |
+          # Создаем правильные пути для новых версий Android SDK до запуска сборщика
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses || true
+          
+          HASHES="8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb74314b7539314d90e7\n24333f8a63b6825ecf2281e6eea4d552d013b94a\n84831b9409646a918e30573bab4c9c91346d8abd"
+          echo -e "$HASHES" > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+
+      - name: Clean and Compile APK
         run: |
           sudo chown -R runner:docker .
           export BUILDOZER_ALLOW_KIVY_ROOT=1
           
-          # Очищаем старые зависшие процессы кэша
+          # Очищаем старые пути и принудительно запускаем чистую автоматическую компиляцию
           buildozer android clean || true
-      - name: Setup Android SDK
-       uses: android-actions/setup-android@v3
+          yes | buildozer android debug
 
-  - name: Compile Application
-    env:
-      _JAVA_OPTIONS: "-Xmx2048m -Xms512m"
-      run: |
-      sudo apt-get update && sudo apt-get install -y android-sdk
-      mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-      ln -s /usr/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-      export BUILDOZER_ALLOW_KIVY_ROOT=1
-      buildozer android debug
-
-
+      - name: Upload Finished APK
+        uses: actions/upload-artifact@v4
         with:
           name: compiled-apk
           path: "**/*.apk"
-          
