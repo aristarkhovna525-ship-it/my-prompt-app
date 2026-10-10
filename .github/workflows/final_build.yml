@@ -18,16 +18,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev cmake
 
-      - name: Install Python Tools
+      - name: Install Fixed Python Tools
         run: |
           pip install --upgrade pip
-          pip install "cython<3.0.0" virtualenv python-for-android kivy
+          # Жестко фиксируем версии вспомогательного софта, чтобы убрать ошибку build_wheel
+          pip install "setuptools<60.0.0" wheel "cython<3.0.0" virtualenv
+          pip install --upgrade python-for-android kivy
 
       - name: Compile APK Directly
         run: |
           sudo chown -R runner:docker .
           
-          # Запускаем сборку с жестким указанием cython в зависимостях среды компиляции
+          # Запускаем прямую компиляцию с использованием стабильного hostpython
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
