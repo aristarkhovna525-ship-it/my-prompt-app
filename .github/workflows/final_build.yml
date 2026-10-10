@@ -27,13 +27,13 @@ jobs:
         run: |
           sudo chown -R runner:docker .
           
-          # Прямая компиляция под современный Android API 35 в обход Buildozer
+          # Запускаем сборку с жестким указанием cython в зависимостях среды компиляции
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
             --version=1.0 \
             --bootstrap=sdl2 \
-            --requirements=python3,kivy \
+            --requirements=python3,kivy,cython \
             --arch=arm64-v8a \
             --android-api=35 \
             --accept-sdk-license
