@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo chown -R runner:docker .
           
-          # Запускаем прямую упаковку вашего main.py со стопроцентным принятием лицензий
+          # Запускаем прямую сборку вашего main.py без использования Buildozer
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
