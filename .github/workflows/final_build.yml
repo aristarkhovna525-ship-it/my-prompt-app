@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 
 jobs:
   build_apk:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -29,11 +29,10 @@ jobs:
       - name: Packaging Application Directly
         run: |
           sudo chown -R runner:docker .
-          
           export ANDROID_SDK_ROOT=$ANDROID_HOME
           export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
           
-          # Меняем bootstrap на webview, чтобы полностью обойти ошибку компиляции libffi
+          # Используем веб-бутстрап, чтобы полностью обойти ошибку компиляции libffi
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
