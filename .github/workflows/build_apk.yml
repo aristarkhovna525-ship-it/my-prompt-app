@@ -17,7 +17,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install Compilers and Tools
         run: |
@@ -32,13 +32,13 @@ jobs:
           export ANDROID_SDK_ROOT=$ANDROID_HOME
           export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
           
-          # Бутстрап webview полностью обходит старые ошибки компиляции макросов
+          # Собираем на стабильном sdl2 и Python 3.11
           p4a apk --private . \
             --package=org.prompt.aiapp \
             --name="ИИ Промты" \
             --version=1.0 \
-            --bootstrap=webview \
-            --requirements=python3,kivy,webview \
+            --bootstrap=sdl2 \
+            --requirements=python3,kivy,cython \
             --arch=arm64-v8a \
             --android-api=34 \
             --accept-sdk-license
