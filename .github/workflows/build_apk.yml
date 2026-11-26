@@ -1,4 +1,4 @@
-name: Build HTML to Android APK
+name: Build Release Android APK
 on: [push, workflow_dispatch]
 
 jobs:
@@ -35,14 +35,18 @@ jobs:
             done
           fi
 
-      - name: Build Debug APK
+      - name: Build and Sign Release APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+          keytool -genkey -v -keystore release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias prompthub -storepass kristalab2026 -keypass kristalab2026 -dname "CN=Kristina Voitsekhovskaia, OU=Dev, O=Kristalab, L=Ulyanovsk, S=Ulyanovsk, C=RU"
+          BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
+          $BUILD_TOOLS/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-aligned.apk
+          $BUILD_TOOLS/apksigner sign --ks release-key.jks --ks-pass pass:kristalab2026 --key-pass pass:kristalab2026 --out app-release-signed.apk app-aligned.apk
 
-      - name: Upload APK
+      - name: Upload Signed Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: PromptHub-AI-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: PromptHub-AI-Release-APK
+          path: android/app-release-signed.apk
