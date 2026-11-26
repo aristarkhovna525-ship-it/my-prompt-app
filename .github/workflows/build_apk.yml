@@ -27,6 +27,13 @@ jobs:
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           npx cap init "PromptHub AI" "com.kristalab.prompthub" --web-dir www
           npx cap add android
+          if [ -f icon.png ]; then
+            for dir in android/app/src/main/res/mipmap-*; do
+              cp icon.png "$dir/ic_launcher.png"
+              cp icon.png "$dir/ic_launcher_round.png"
+              cp icon.png "$dir/ic_launcher_foreground.png"
+            done
+          fi
 
       - name: Build Debug APK
         run: |
