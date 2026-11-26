@@ -1,1 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ДокМастер PRO — Генератор договоров</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f1f5f9; color: #0f172a; margin: 0; padding: 0; padding-bottom: 90px; }
+        .header { background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 40px 16px 16px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(15,23,42,0.15); }
+        .header-title { font-size: 18px; font-weight: bold; }
+        .badge-pro { background: #10b981; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 10px; }
+        .container { padding: 14px; max-width: 580px; margin: 0 auto; }
+        .page { display: none; }
+        .page.active { display: block; }
 
+        .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05); border: 1px solid #e2e8f0; }
+        .card-title { font-size: 16px; font-weight: bold; color: #1e3a8a; margin: 0 0 12px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+
+        .doc-item { border: 1px solid #cbd5e1; border-radius: 12px; padding: 13px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; }
+        .doc-item:active { border-color: #2563eb; background: #f8fafc; }
+        .doc-info h4 { margin: 0 0 4px 0; font-size: 15px; color: #0f172a; }
+        .doc-info p { margin: 0; font-size: 12px; color: #64748b; }
+        .tag-free { background: #dcfce7; color: #15803d; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
+        .tag-lock { background: #fef3c7; color: #b45309; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
+
+        .form-group { margin-bottom: 11px; }
+        label { display: block; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 4px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; font-family: inherit; background: #f8fafc; }
+        input:focus, textarea:focus { outline: none; border-color: #2563eb; background: #fff; }
+
+        .btn-primary { width: 100%; background: #2563eb; color: #fff; border: none; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-green { width: 100%; background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .btn-gold { width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
+
+        .doc-preview { background: #fff; border: 1px solid #94a3b8; border-radius: 8px; padding: 14px; font-family: "Times New Roman", serif; font-size: 13px; line-height: 1.5; white-space: pre-wrap; color: #000; margin-top: 12px; max-height: 360px; overflow-y: auto; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #e2e8f0; padding: 8px 0 12px 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #64748b; cursor: pointer; }
+        .nav-item span { display: block; font-size: 18px; margin-bottom: 2px; }
+        .nav-item.active { color: #2563eb; font-weight: bold; }
+
+        .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.65); z-index: 2000; align-items: center; justify-content: center; padding: 14px; }
+        .modal-box { background: #fff; border-radius: 14px; padding: 18px; width: 100%; max-width: 500px; max-height: 82vh; overflow-y: auto; font-size: 13px; line-height: 1.5; color: #334155; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title" id="headerTitle">&#128196; ДокМастер PRO</div>
+        <div class="badge-pro">ЮрБланк</div>
+    </div>
+
+    <div class="container">
+        <!-- ЭКРАН 1: ВЫБОР ШАБЛОНА ДОКУМЕНТА -->
+        <div id="pageTemplates" class="page active">
+            <div class="card">
+                <div class="card-title">&#128203; Выберите нужный документ</div>
+
+                <div class="doc-item" onclick="openForm('raspiska')">
+                    <div class="doc-info">
+                        <h4>Расписка в получении денег</h4>
+                        <p>Задаток на Авито, предоплата, займ</p>
+                    </div>
+                    <span class="tag-free">Бесплатно</span>
+                </div>
+
+                <div class="doc-item" onclick="openForm('dkp')">
+                    <div class="doc-info">
+                        <h4>Договор купли-продажи (ДКП)</h4>
+                        <p>Техника, мебель, товары с рук</p>
+                    </div>
+                    <span class="tag-lock">&#128081; PRO</span>
+                </div>
+
+                <div class="doc-item" onclick="openForm('uslugi')">
+                    <div class="doc-info">
+                        <h4>Договор услуг / фриланса</h4>
+                        <p>Мастера, дизайн, разработка, ремонт</p>
+                    </div>
+                    <span class="tag-lock">&#128081; PRO</span>
+                </div>
+
+                <div class="doc-item" onclick="openForm('arenda')">
+                    <div class="doc-info">
+                        <h4>Договор найма (аренды) жилья</h4>
+                        <p>Квартира, комната, апартаменты</p>
+                    </div>
+                    <span class="tag-lock">&#128081; PRO</span>
+                </div>
+
+                <div class="doc-item" onclick="openForm('akt')">
+                    <div class="doc-info">
+                        <h4>Акт приёма-передачи</h4>
+                        <p>Закрытие работ или передача товара</p>
+                    </div>
+                    <span class="tag-lock">&#128081; PRO</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 2: ЗАПОЛНЕНИЕ РЕКВИЗИТОВ И ГОТОВЫЙ ДОКУМЕНТ -->
+        <div id="pageEditor" class="page">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:12px; color:#2563eb; font-weight:bold; cursor:pointer;" onclick="switchPage('Templates')">&#8592; К списку шаблонов</span>
+                    <span class="tag-free" id="docBadge">Шаблон</span>
+                </div>
+                <div class="card-title" id="formTitle">Заполнение документа</div>
+
+                <div class="form-group"><label>Город составления</label><input type="text" id="fCity" value="г. Москва"></div>
+                <div class="form-group"><label>Дата документа</label><input type="text" id="fDate" placeholder="Например: 27.11.2026"></div>
+                <div class="form-group"><label id="lblParty1">ФИО Передающего / Исполнителя / Продавца</label><input type="text" id="fParty1" placeholder="Иванов Иван Иванович"></div>
+                <div class="form-group"><label>Паспорт или ИНН стороны 1</label><input type="text" id="fDoc1" placeholder="Серия, номер, кем выдан (или ИНН)"></div>
+                <div class="form-group"><label id="lblParty2">ФИО Получателя / Заказчика / Покупателя</label><input type="text" id="fParty2" placeholder="Петров Пётр Петрович"></div>
+                <div class="form-group"><label>Паспорт или ИНН стороны 2</label><input type="text" id="fDoc2" placeholder="Серия, номер, кем выдан (или ИНН)"></div>
+                <div class="form-group"><label id="lblSubject">Предмет (товар, услуга или адрес квартиры)</label><textarea id="fSubject" rows="2" placeholder="Например: Смартфон iPhone 15 Pro, IMEI... / Разработка сайта..."></textarea></div>
+                <div class="form-group"><label>Сумма сделки (в рублях)</label><input type="number" id="fSum" placeholder="25000"></div>
+
+                <button class="btn-primary" onclick="generateDoc()">Сформировать готовый документ</button>
+
+                <div id="resultArea" style="display:none; margin-top:14px;">
+                    <label style="color:#15803d;">Готовый юридический текст:</label>
+                    <div class="doc-preview" id="docOutput"></div>
+                    <button class="btn-green" onclick="copyDoc()">&#128203; Скопировать текст</button>
+                    <button class="btn-primary" style="margin-top:8px; background:#0f172a;" onclick="downloadWord()">&#128190; Скачать файл для Word (.doc)</button>
+                </div>
+            </div>
+        </div>
+        <!-- ЭКРАН 3: PRO-ДОСТУП И РЕКВИЗИТЫ -->
+        <div id="pagePro" class="page">
+            <div class="card" style="border: 1.5px solid #f59e0b; text-align: center;">
+                <span style="font-size: 38px; display: block; margin-bottom: 6px;">&#128081;</span>
+                <h2 style="margin: 0 0 8px 0; font-size: 19px; color: #0f172a;">ДокМастер PRO — Полный пакет</h2>
+                <p style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 14px;">
+                    Защитите свои сделки и деньги: откройте все профессиональные договоры с мгновенной выгрузкой в Word.
+                </p>
+
+                <div style="background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 12px; text-align: left; font-size: 13px; color: #334155; margin-bottom: 16px; line-height: 1.6;">
+                    <div>&#9989; Договор купли-продажи (ДКП) любых товаров</div>
+                    <div>&#9989; Договор услуг и фриланса с защитой от правок</div>
+                    <div>&#9989; Договор найма (аренды) квартиры и комнаты</div>
+                    <div>&#9989; Акт приёма-передачи работ и имущества</div>
+                </div>
+
+                <button class="btn-gold" id="docPayBtn" onclick="buyDocPro()">Открыть все шаблоны за 290&#8381;</button>
+
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.5;">
+                    <div>Исполнитель: Войцеховская Кристина (Самозанятый / НПД)</div>
+                    <div>ИНН: <b style="color:#0f172a;">732510458960</b> &#8226; Поддержка: @kristalab_dev</div>
+                    <div>Email: aristarkhovna777kris@gmail.com</div>
+                    <div style="margin-top: 6px;">
+                        <a onclick="openDocModal('oferta')" style="color: #2563eb; text-decoration: underline; cursor: pointer; margin-right: 10px;">Публичная оферта</a>
+                        <a onclick="openDocModal('privacy')" style="color: #2563eb; text-decoration: underline; cursor: pointer;">Политика конфиденциальности</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДОКУМЕНТОВ -->
+    <div class="modal-bg" id="legalModal" onclick="this.style.display='none'">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div id="legalModalBody"></div>
+            <button class="btn-primary" style="margin-top:14px;" onclick="document.getElementById('legalModal').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- НИЖНЕЕ МЕНЮ -->
+    <div class="nav-bar">
+        <div class="nav-item active" id="navTemplates" onclick="switchPage('Templates')"><span>&#128196;</span>Шаблоны</div>
+        <div class="nav-item" id="navPro" onclick="switchPage('Pro')" style="color:#d97706;"><span>&#128081;</span>PRO-пакет</div>
+    </div>
+    <script>
+        let currentDocType = 'raspiska';
+
+        const docMeta = {
+            raspiska: {
+                title: 'Расписка в получении денежных средств',
+                badge: 'Бесплатно',
+                isPro: false,
+                p1: 'ФИО Передающего деньги (Покупателя / Займодавца)',
+                p2: 'ФИО Получателя денег (Продавца / Заёмщика)',
+                subj: 'За что передаются деньги (задаток за товар, услугу, займ)'
+            },
+            dkp: {
+                title: 'Договор купли-продажи товара (ДКП)',
+                badge: 'PRO-шаблон',
+                isPro: true,
+                p1: 'ФИО Продавца',
+                p2: 'ФИО Покупателя',
+                subj: 'Наименование, модель, серийный номер / состояние товара'
+            },
+            uslugi: {
+                title: 'Договор возмездного оказания услуг',
+                badge: 'PRO-шаблон',
+                isPro: true,
+                p1: 'ФИО Исполнителя (мастера / специалиста)',
+                p2: 'ФИО Заказчика',
+                subj: 'Перечень услуг, объём работ и срок выполнения'
+            },
+            arenda: {
+                title: 'Договор найма (аренды) жилого помещения',
+                badge: 'PRO-шаблон',
+                isPro: true,
+                p1: 'ФИО Наймодателя (собственника жилья)',
+                p2: 'ФИО Нанимателя (арендатора)',
+                subj: 'Точный адрес квартиры/комнаты и срок найма'
+            },
+            akt: {
+                title: 'Акт приёма-передачи выполненных работ / товара',
+                badge: 'PRO-шаблон',
+                isPro: true,
+                p1: 'ФИО Исполнителя / Продавца',
+                p2: 'ФИО Заказчика / Покупателя',
+                subj: 'Наименование переданного товара или выполненных работ'
+            }
+        };
+
+        function switchPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            if (page === 'Templates') {
+                document.getElementById('pageTemplates').classList.add('active');
+                document.getElementById('navTemplates').classList.add('active');
+            } else if (page === 'Editor') {
+                document.getElementById('pageEditor').classList.add('active');
+                document.getElementById('navTemplates').classList.add('active');
+            } else {
+                document.getElementById('pagePro').classList.add('active');
+                document.getElementById('navPro').classList.add('active');
+            }
+        }
+
+        function openForm(type) {
+            const meta = docMeta[type];
+            if (!meta) return;
+
+            if (meta.isPro && localStorage.getItem('doc_pro_unlocked') !== '1') {
+                switchPage('Pro');
+                return;
+            }
+
+            currentDocType = type;
+            document.getElementById('formTitle').innerText = meta.title;
+            document.getElementById('docBadge').innerText = meta.badge;
+            document.getElementById('lblParty1').innerText = meta.p1;
+            document.getElementById('lblParty2').innerText = meta.p2;
+            document.getElementById('lblSubject').innerText = meta.subj;
+            document.getElementById('resultArea').style.display = 'none';
+
+            const today = new Date().toLocaleDateString('ru-RU');
+            if (!document.getElementById('fDate').value) {
+                document.getElementById('fDate').value = today;
+            }
+            switchPage('Editor');
+        }
+
+        function generateDoc() {
+            const city = document.getElementById('fCity').value.trim() || 'г. Москва';
+            const date = document.getElementById('fDate').value.trim() || new Date().toLocaleDateString('ru-RU');
+            const p1 = document.getElementById('fParty1').value.trim() || '_________________________';
+            const d1 = document.getElementById('fDoc1').value.trim() || '_________________________';
+            const p2 = document.getElementById('fParty2').value.trim() || '_________________________';
+            const d2 = document.getElementById('fDoc2').value.trim() || '_________________________';
+            const subj = document.getElementById('fSubject').value.trim() || '_________________________';
+            const sum = document.getElementById('fSum').value.trim() || '0';
+
+            let text = '';
+
+            if (currentDocType === 'raspiska') {
+                text = `РАСПИСКА В ПОЛУЧЕНИИ ДЕНЕЖНЫХ СРЕДСТВ\n\n${city}, ${date} г.\n\nЯ, ${p2}, паспорт / реквизиты: ${d2}, получил(а) от гражданина(ки) ${p1}, паспорт / реквизиты: ${d1}, денежные средства в размере ${sum} (${sum}) рублей.\n\nОснование передачи денежных средств: ${subj}.\n\nДенежные средства получены мной в полном объёме в момент подписания настоящей расписки. Претензий по расчётам стороны друг к другу не имеют.\n\nДеньги передал(а): ___________________ / ${p1} /\nДеньги получил(а): ___________________ / ${p2} /`;
+            } else if (currentDocType === 'dkp') {
+                text = `ДОГОВОР КУПЛИ-ПРОДАЖИ ТОВАРА\n\n${city}, ${date} г.\n\nГражданин(ка) ${p1} (паспорт / реквизиты: ${d1}), именуемый(ая) в дальнейшем «Продавец», и гражданин(ка) ${p2} (паспорт / реквизиты: ${d2}), именуемый(ая) в дальнейшем «Покупатель», заключили настоящий Договор о нижеследующем:\n\n1. ПРЕДМЕТ ДОГОВОРА\n1.1. Продавец обязуется передать в собственность Покупателя, а Покупатель обязуется принять и оплатить следующее имущество (товар): ${subj}.\n1.2. Продавец гарантирует, что указанный товар принадлежит ему на праве собственности, не заложен, под арестом не состоит и свободнен от прав третьих лиц.\n\n2. ЦЕНА И ПОРЯДОК РАСЧЁТОВ\n2.1. Стоимость товара по соглашению сторон составляет ${sum} рублей.\n2.2. Оплата производится Покупателем в полном объёме при передаче товара.\n\n3. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ\n3.1. Товар осмотрен Покупателем, претензий к внешнему виду и комплектности не имеется. С момента подписания Договора риск случайной гибели товара переходит к Покупателю.\n\nПродавец: ___________________ / ${p1} /\nПокупатель: ___________________ / ${p2} /`;
+            } else if (currentDocType === 'uslugi') {
+                text = `ДОГОВОР ВОЗМЕЗДНОГО ОКАЗАНИЯ УСЛУГ\n\n${city}, ${date} г.\n\n${p1} (паспорт / ИНН: ${d1}), именуемый(ая) в дальнейшем «Исполнитель», и ${p2} (паспорт / ИНН: ${d2}), именуемый(ая) в дальнейшем «Заказчик», заключили настоящий Договор о нижеследующем:\n\n1. ПРЕДМЕТ ДОГОВОРА\n1.1. Исполнитель обязуется по заданию Заказчика оказать следующие услуги: ${subj}, а Заказчик обязуется принять и оплатить эти услуги.\n\n2. СТОИМОСТЬ УСЛУГ И ПОРЯДОК ОПЛАТЫ\n2.1. Общая стоимость услуг составляет ${sum} рублей.\n2.2. Оплата производится в согласованном сторонами порядке без удержания скрытых комиссий.\n\n3. ОТВЕТСТВЕННОСТЬ СТОРОН\n3.1. Услуги считаются оказанными надлежащим образом после передачи результата Заказчику. Дополнительные работы, не входящие в п. 1.1, согласовываются и оплачиваются отдельно.\n\nИсполнитель: ___________________ / ${p1} /\nЗаказчик: ___________________ / ${p2} /`;
+            } else if (currentDocType === 'arenda') {
+                text = `ДОГОВОР НАЙМА ЖИЛОГО ПОМЕЩЕНИЯ\n\n${city}, ${date} г.\n\n${p1} (паспорт: ${d1}), именуемый(ая) в дальнейшем «Наймодатель», и ${p2} (паспорт: ${d2}), именуемый(ая) в дальнейшем «Наниматель», заключили настоящий Договор о нижеследующем:\n\n1. ПРЕДМЕТ ДОГОВОРА\n1.1. Наймодатель предоставляет Нанимателю за плату во временное владение и пользование жилое помещение: ${subj}.\n\n2. ПЛАТА ЗА НАЙМ И РАСЧЁТЫ\n2.1. Ежемесячная плата за пользование жилым помещением составляет ${sum} рублей.\n2.2. Наниматель обязуется своевременно вносить плату за найм, соблюдать правила проживания и поддерживать помещение в исправном состоянии.\n\n3. СРОК И УСЛОВЯ РАСТОРЖЕНИЯ\n3.1. При досрочном расторжении Договора инициативная сторона обязана уведомить другую сторону не менее чем за 14 календарных дней.\n\nНаймодатель: ___________________ / ${p1} /\nНаниматель: ___________________ / ${p2} /`;
+            } else {
+                text = `АКТ ПРИЁМА-ПЕРЕДАЧИ\n\n${city}, ${date} г.\n\nМы, нижеподписавшиеся: ${p1} (паспорт / реквизиты: ${d1}), именуемый(ая) «Передающая сторона», и ${p2} (паспорт / реквизиты: ${d2}), именуемый(ая) «Принимающая сторона», составили настоящий Акт о том, что:\n\n1. Передающая сторона передала, а Принимающая сторона приняла: ${subj}.\n2. Общая стоимость переданного имущества / выполненных работ составляет ${sum} рублей.\n3. Качество, объём и состояние полностью соответствуют договорённостям. Стороны взаимных претензий не имеют.\n\nПередал(а): ___________________ / ${p1} /\nПринял(а): ___________________ / ${p2} /`;
+            }
+
+            document.getElementById('docOutput').innerText = text;
+            document.getElementById('resultArea').style.display = 'block';
+        }
+        function copyDoc() {
+            const text = document.getElementById('docOutput').innerText;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => alert('Текст документа скопирован!'));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('Текст документа скопирован!');
+            }
+        }
+
+        function downloadWord() {
+            const text = document.getElementById('docOutput').innerText.replace(/\n/g, '<br>');
+            const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://w3.org'><head><meta charset='utf-8'><title>Документ</title></head><body style="font-family:'Times New Roman',serif;font-size:14pt;line-height:1.5;">${text}</body></html>`;
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Документ_ДокМастер.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function buyDocPro() {
+            const btn = document.getElementById('docPayBtn');
+            const oldHtml = btn.innerHTML;
+            btn.innerText = 'Загрузка...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('https://github.io' + Date.now());
+                const data = await res.json();
+                const payUrl = data['doc_pro'];
+
+                if (payUrl && payUrl.startsWith('http')) {
+                    window.location.href = payUrl;
+                    return;
+                }
+            } catch (e) {}
+
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
+            alert('Онлайн-оплата полного пакета шаблонов (290 руб.) через ЮKassa сейчас на финальной активации. Для мгновенного открытия PRO-доступа напишите в поддержку: @kristalab_dev');
+        }
+
+        function openDocModal(type) {
+            const body = document.getElementById('legalModalBody');
+            if (type === 'oferta') {
+                body.innerHTML = '<h3>Публичная оферта</h3><p>Настоящий документ является официальным предложением (офертой) самозанятого Войцеховской Кристины (ИНН 732510458960) о предоставлении доступа к расширенному пакету шаблонов сервиса «ДокМастер PRO».</p><p>1. Стоимость полного доступа составляет 290 руб. (единовременно) через платёжный сервис ЮKassa.</p><p>2. Доступ ко всем договорам и актам открывается сразу после подтверждения оплаты.</p><p>3. Поддержка и возврат: @kristalab_dev, aristarkhovna777kris@gmail.com.</p>';
+            } else {
+                body.innerHTML = '<h3>Политика конфиденциальности</h3><p>Сервис «ДокМастер PRO» не собирает, не хранит на сервере и не передаёт третьим лицам паспортные данные, ФИО и реквизиты, вводимые пользователем — генерация текста и выгрузка файла происходят исключительно локально в браузере вашего устройства.</p><p>Обработка платёжных данных выполняется на защищённой стороне сервиса ЮKassa по стандарту PCI DSS.</p>';
+            }
+            document.getElementById('legalModal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
