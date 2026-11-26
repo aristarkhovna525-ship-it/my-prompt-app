@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PromptHub AI — База промтов</title>
+    <style>
+        * { box-sizing: border-box !important; }
+        html, body { background-color: #080a0f !important; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; overflow-x: hidden; padding-bottom: 85px; }
+        .header { background: #0f1423 !important; padding: 38px 14px 12px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,245,212,0.18); position: sticky; top: 0; z-index: 100; }
+        .header-title { font-size: 17px; font-weight: bold; color: #f8fafc; }
+        .badge-neon { background: rgba(0, 245, 212, 0.12); color: #00f5d4; border: 1px solid #00f5d4; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .container { padding: 12px; width: 100%; max-width: 560px; margin: 0 auto; }
+        .page { display: none; width: 100%; }
+        .page.active { display: block; }
+
+        .hero-card { background: linear-gradient(145deg, #161230, #121726) !important; border: 1px solid rgba(168,85,247,0.45); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+        .hero-tag { display: inline-block; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 11px; font-weight: bold; padding: 4px 9px; border-radius: 8px; margin-bottom: 8px; }
+        .hero-title { font-size: 16px; font-weight: bold; margin: 0 0 6px 0; color: #fff; }
+        .hero-desc { font-size: 12px; color: #94a3b8; line-height: 1.45; margin: 0 0 12px 0; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .tile { background: #121726 !important; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; }
+        .tile:active { border-color: #00f5d4; }
+        .tile-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+        .tile-name { font-size: 13px; font-weight: bold; display: block; color: #f8fafc; }
+        .tile-count { font-size: 10px; color: #64748b; }
+
+        .cyber-box { background: #121726 !important; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+        .label-cyber { display: block; font-size: 12px; color: #00f5d4; margin-bottom: 5px; font-weight: bold; }
+        .input-cyber, .select-cyber, .textarea-cyber { width: 100%; background: #080a0f !important; color: #f8fafc !important; border: 1px solid rgba(0,245,212,0.3); border-radius: 10px; padding: 10px; font-size: 14px; margin-bottom: 12px; outline: none; }
+        .btn-neon { width: 100%; background: #00f5d4; color: #080a0f; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-purple { width: 100%; background: #9333ea; color: #fff; border: none; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; }
+
+        .cat-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; }
+        .cat-pill { background: #121726; color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+        .cat-pill.active { background: rgba(0,245,212,0.15); color: #00f5d4; border-color: #00f5d4; font-weight: bold; }
+
+        .p-card { background: #121726; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .p-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .p-tag { background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 10px; padding: 3px 7px; border-radius: 6px; font-weight: bold; }
+        .p-title { font-size: 14px; font-weight: bold; margin: 0 0 5px 0; color: #fff; }
+        .p-preview { font-size: 12px; color: #94a3b8; margin: 0 0 10px 0; line-height: 1.4; }
+        .p-actions { display: flex; gap: 6px; }
+        .btn-small { flex: 1; background: rgba(0,245,212,0.12); color: #00f5d4; border: 1px solid rgba(0,245,212,0.35); padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.78); z-index: 2000; align-items: flex-end; justify-content: center; }
+        .modal-sheet { background: #121726; border-top: 2px solid #00f5d4; border-radius: 18px 18px 0 0; padding: 18px; width: 100%; max-width: 560px; max-height: 82vh; overflow-y: auto; }
+        .code-block { background: #07090e !important; border: 1px solid rgba(0,245,212,0.25); border-radius: 10px; padding: 12px; font-size: 13px; color: #e2e8f0; line-height: 1.5; white-space: pre-wrap; margin: 10px 0; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #0f1423; display: flex; border-top: 1px solid rgba(255,255,255,0.08); padding: 8px 0 12px 0; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #64748b; cursor: pointer; }
+        .nav-item span { display: block; font-size: 18px; margin-bottom: 2px; }
+        .nav-item.active { color: #00f5d4; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title" id="topTitle">&#129302; PromptHub AI</div>
+        <div class="badge-neon">V 2.0</div>
+    </div>
+    <div class="container">
+        <!-- ЭКРАН 1: ГЛАВНАЯ -->
+        <div id="pageHome" class="page active">
+            <div class="hero-card">
+                <span class="hero-tag">&#128293; Промт дня</span>
+                <h2 class="hero-title">Личный ИИ-наставник для бизнеса</h2>
+                <p class="hero-desc">Превращает любую нейросеть в опытного маркетолога и стратега для запуска проектов.</p>
+                <button class="btn-neon" onclick="openModalById(0)">Открыть и скопировать</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="tile" onclick="goToCategory('Бизнес')">
+                    <span class="tile-icon">&#128188;</span>
+                    <span class="tile-name">Бизнес</span>
+                    <span class="tile-count">Стратегия и продажи</span>
+                </div>
+                <div class="tile" onclick="goToCategory('Контент')">
+                    <span class="tile-icon">&#9997;&#65039;</span>
+                    <span class="tile-name">Контент</span>
+                    <span class="tile-count">Посты, Reels, сценарии</span>
+                </div>
+                <div class="tile" onclick="goToCategory('Нейрофото')">
+                    <span class="tile-icon">&#127912;</span>
+                    <span class="tile-name">Нейрофото</span>
+                    <span class="tile-count">Аватарки, арт, иконки</span>
+                </div>
+                <div class="tile" onclick="goToCategory('Учёба')">
+                    <span class="tile-icon">&#127891;</span>
+                    <span class="tile-name">Учёба</span>
+                    <span class="tile-count">Конспекты и языки</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 2: ИНТЕРАКТИВНЫЙ КОНСТРУКТОР -->
+        <div id="pageBuilder" class="page">
+            <div class="cyber-box">
+                <h3 style="margin: 0 0 12px 0; color: #00f5d4; font-size: 16px;">&#9881;&#65039; Конструктор промта</h3>
+                <label class="label-cyber">1. Роль нейросети:</label>
+                <select class="select-cyber" id="bRole">
+                    <option value="опытного маркетолога и копирайтера">Маркетолог и копирайтер</option>
+                    <option value="профессионального сценариста коротких видео">Сценарист Reels / Shorts</option>
+                    <option value="арт-директора и промт-инженера">Арт-директор (нейрофото)</option>
+                    <option value="терпеливого репетитора и наставника">Репетитор и наставник</option>
+                    <option value="опытного программиста и архитектора">Программист</option>
+                </select>
+
+                <label class="label-cyber">2. Главная задача:</label>
+                <select class="select-cyber" id="bTask">
+                    <option value="написать продающий текст с сильным заголовком">Написать продающий текст</option>
+                    <option value="составить пошаговый план действий">Составить пошаговый план</option>
+                    <option value="придумать 10 цепляющих идей">Придумать 10 идей</option>
+                    <option value="сделать глубокий разбор и дать советы">Сделать разбор и дать советы</option>
+                </select>
+
+                <label class="label-cyber">3. Стиль ответа:</label>
+                <select class="select-cyber" id="bTone">
+                    <option value="живом, современном и понятном без воды">Живой и без воды</option>
+                    <option value="строгом, экспертном и деловом">Экспертный и деловой</option>
+                    <option value="дружелюбном и вдохновляющем">Дружелюбный</option>
+                </select>
+
+                <label class="label-cyber">4. Тема или продукт:</label>
+                <input type="text" class="input-cyber" id="bTopic" placeholder="Например: запуск онлайн-курса по фитнесу">
+
+                <button class="btn-neon" onclick="buildPrompt()">Собрать идеальный промт</button>
+
+                <div id="builderResult" style="display:none; margin-top: 14px;">
+                    <label class="label-cyber">Готовый запрос:</label>
+                    <div class="code-block" id="builtText"></div>
+                    <button class="btn-purple" onclick="copyBuiltPrompt(this)">Скопировать запрос</button>
+                </div>
+            </div>
+        </div>
+        <!-- ЭКРАН 3: КАТАЛОГ ПРОМТОВ -->
+        <div id="pageCatalog" class="page">
+            <input type="text" class="input-cyber" id="searchInput" oninput="renderCatalog()" placeholder="&#128269; Поиск по базе промтов...">
+            <div class="cat-scroll">
+                <div class="cat-pill active" onclick="filterCat(this, 'Все')">Все</div>
+                <div class="cat-pill" onclick="filterCat(this, 'Бизнес')">Бизнес</div>
+                <div class="cat-pill" onclick="filterCat(this, 'Контент')">Контент</div>
+                <div class="cat-pill" onclick="filterCat(this, 'Нейрофото')">Нейрофото</div>
+                <div class="cat-pill" onclick="filterCat(this, 'Учёба')">Учёба</div>
+            </div>
+            <div id="catalogList"></div>
+        </div>
+
+        <!-- ЭКРАН 4: МОЯ КОЛЛЕКЦИЯ -->
+        <div id="pageSaved" class="page">
+            <div class="cyber-box">
+                <h3 style="margin: 0 0 10px 0; color: #d8b4fe; font-size: 16px;">&#128190; Добавить свой промт</h3>
+                <input type="text" class="input-cyber" id="newPromptTitle" placeholder="Название шаблона (например: Пост для канала)">
+                <textarea class="textarea-cyber" id="newPromptBody" rows="3" placeholder="Вставьте текст вашего промта..."></textarea>
+                <button class="btn-purple" onclick="saveCustomPrompt()">Сохранить в мою базу</button>
+            </div>
+            <div style="font-size: 13px; font-weight: bold; color: #94a3b8; margin-bottom: 8px;">Мои сохранённые шаблоны:</div>
+            <div id="mySavedList"></div>
+        </div>
+
+        <!-- ЭКРАН 5: PRO-ЛАБОРАТОРИЯ (399 ₽ + ОФЕРТА И ИНН) -->
+        <div id="pagePro" class="page">
+            <div class="cyber-box" style="border: 1px solid #f59e0b; text-align: center;">
+                <span style="font-size: 36px; display: block; margin-bottom: 8px;">&#128081;</span>
+                <h2 style="color: #f59e0b; margin: 0 0 8px 0; font-size: 18px;">PRO-Лаборатория ИИ</h2>
+                <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 16px;">
+                    Закрытый раздел с продвинутыми цепочками запросов для генерации изображений, написания сложных сценариев и автоматизации рутины.
+                </p>
+
+                <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 12px; text-align: left; font-size: 12px; color: #e2e8f0; margin-bottom: 16px; line-height: 1.6;">
+                    <div>&#9989; 50+ авторских связок для ChatGPT и Midjourney</div>
+                    <div>&#9989; Готовые шаблоны для создания контента за 5 минут</div>
+                    <div>&#9989; Полное отключение рекламных блоков</div>
+                </div>
+
+                <button class="btn-neon" id="proPayBtn" onclick="buyPromptPro()" style="width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: bold; padding: 13px; border: none; border-radius: 10px; font-size: 15px;">
+                    Активировать PRO за 399&#8381;
+                </button>
+
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2); font-size: 11px; color: #94a3b8; line-height: 1.5;">
+                    <div>Исполнитель: Войцеховская Кристина (Самозанятый / НПД)</div>
+                    <div>ИНН: <b style="color:#e2e8f0;">732510458960</b> &#8226; Поддержка: @kristalab_dev</div>
+                    <div>Email: aristarkhovna777kris@gmail.com</div>
+                    <div style="margin-top: 6px;">
+                        <a onclick="openLegalDoc('oferta')" style="color: #00f5d4; text-decoration: underline; cursor: pointer; margin-right: 10px;">Публичная оферта</a>
+                        <a onclick="openLegalDoc('privacy')" style="color: #00f5d4; text-decoration: underline; cursor: pointer;">Политика конфиденциальности</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВЫДВИЖНАЯ ШТОРКА ПОДРОБНОСТЕЙ ПРОМТА И ДОКУМЕНТОВ -->
+    <div class="modal-bg" id="promptModal" onclick="closeModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="p-tag" id="mTag">Категория</span>
+                <span onclick="document.getElementById('promptModal').style.display='none'" style="color: #94a3b8; font-size: 20px; cursor: pointer; padding: 0 6px;">&#10005;</span>
+            </div>
+            <h3 id="mTitle" style="margin: 0 0 4px 0; font-size: 16px; color: #fff;">Заголовок</h3>
+            <div id="mHowTo" style="font-size: 11px; color: #00f5d4; margin-bottom: 8px;">Рекомендуемые нейросети</div>
+            <div class="code-block" id="mText">Текст промта...</div>
+            <button class="btn-neon" onclick="copyFromModal()">Скопировать</button>
+        </div>
+    </div>
+
+    <!-- НИЖНЕЕ МЕНЮ НА 5 КНОПОК -->
+    <div class="nav-bar">
+        <div class="nav-item active" id="navHome" onclick="switchTab('Home')"><span>&#127968;</span>Главная</div>
+        <div class="nav-item" id="navBuilder" onclick="switchTab('Builder')"><span>&#9881;&#65039;</span>Сборщик</div>
+        <div class="nav-item" id="navCatalog" onclick="switchTab('Catalog')"><span>&#128218;</span>Каталог</div>
+        <div class="nav-item" id="navSaved" onclick="switchTab('Saved')"><span>&#128190;</span>Моё</div>
+        <div class="nav-item" id="navPro" onclick="switchTab('Pro')" style="color: #f59e0b;"><span>&#128081;</span>PRO</div>
+    </div>
+    <script>
+        const promptsData = [
+            {
+                id: 0,
+                cat: "Бизнес",
+                title: "Личный ИИ-наставник для бизнеса",
+                howTo: "ChatGPT, Claude, YandexGPT",
+                text: "Выступи в роли опытного бизнес-стратега и маркетолога. У меня есть идея проекта: [ОПИШИТЕ ИДЕЮ]. Разложи её по шагам: 1) Кто моя целевая аудитория и её главная боль; 2) Как быстро протестировать спрос без больших вложений; 3) Какие 3 канала привлечения клиентов сработают быстрее всего."
+            },
+            {
+                id: 1,
+                cat: "Контент",
+                title: "Сценарий вирусного Reels / Shorts",
+                howTo: "ChatGPT, Claude, GigaChat",
+                text: "Напиши сценарий короткого вертикального видео на 30-45 секунд на тему: [ТЕМА ВИДЕО]. Структура: 1) Цепляющий хук в первые 3 секунды, чтобы зритель не пролистал; 2) Суть без воды в 3 коротких тезисах; 3) Призыв к действию в конце для комментариев и подписок."
+            },
+            {
+                id: 2,
+                cat: "Контент",
+                title: "Контент-план для блога на 7 дней",
+                howTo: "ChatGPT, YandexGPT, GigaChat",
+                text: "Разработай контент-план для моего Telegram-канала или блога на тему: [ВАША НИША]. Дай 7 идей постов: 2 экспертных разбора, 2 личных/вовлекающих поста, 2 подборки полезных инструментов и 1 нативно продающий пост. Для каждого напиши сильный заголовок."
+            },
+            {
+                id: 3,
+                cat: "Контент",
+                title: "Улучшение и редактура любого текста",
+                howTo: "ChatGPT, Claude, YandexGPT",
+                text: "Отредактируй мой текст ниже: убери канцелярит, воду и сложные обороты. Сделай его живым, ритмичным и легко читаемым с экрана телефона. Разбей на короткие абзацы и предложи 3 варианта цепляющего заголовка:\n\n[ВСТАВЬТЕ ВАШ ТЕКСТ]"
+            },
+            {
+                id: 4,
+                cat: "Нейрофото",
+                title: "Премиум аватарка в деловом стиле",
+                howTo: "Midjourney, Flux, Шедеврум",
+                text: "Editorial portrait of a confident young entrepreneur in a modern minimalist studio, soft dramatic rim lighting, wearing stylish smart-casual dark blazer, shallow depth of field, 85mm lens, sharp focus, photorealistic, 8k --ar 1:1"
+            },
+            {
+                id: 5,
+                cat: "Нейрофото",
+                title: "Киберпанк-арт и футуристический неон",
+                howTo: "Midjourney, Шедеврум, Kandinsky",
+                text: "Futuristic cyberpunk city street at night, glowing cyan and purple neon signs, wet asphalt reflections, sleek high-tech atmosphere, cinematic lighting, ultra detailed, unreal engine 5 render style --ar 9:16"
+            },
+            {
+                id: 6,
+                cat: "Нейрофото",
+                title: "Минималистичный 3D-логотип или иконка",
+                howTo: "Midjourney, Шедеврум, Ideogram",
+                text: "Minimalist 3D app icon design, glowing neon geometric emblem on dark matte obsidian background, glassmorphism elements, soft studio light, clean modern UI aesthetic, centered composition --ar 1:1"
+            },
+            {
+                id: 7,
+                cat: "Бизнес",
+                title: "Отработка возражений клиентов",
+                howTo: "ChatGPT, YandexGPT, GigaChat",
+                text: "Ты мастер мягких продаж и переговоров. Клиент говорит мне: «[ВОЗРАЖЕНИЕ КЛИЕНТА, НАПРИМЕР: ДОРОГО / Я ПОДУМАЮ]». Напиши 3 вежливых, уверенных варианта ответа без давления, которые покажут ценность моего продукта и мягко вернут человека к диалогу."
+            },
+            {
+                id: 8,
+                cat: "Учёба",
+                title: "Сложная тема простыми словами",
+                howTo: "ChatGPT, Claude, YandexGPT",
+                text: "Объясни тему «[ЛЮБАЯ СЛОЖНАЯ ТЕМА]» максимально простым языком, как будто объясняешь новичку на жизненных примерах и аналогиях. В конце дай 3 контрольных вопроса, чтобы я проверил, правильно ли всё понял."
+            }
+        ];
+
+        let currentCat = 'Все';
+        let activeModalText = '';
+
+        function switchTab(tabName) {
+            const pages = ['Home', 'Builder', 'Catalog', 'Saved', 'Pro'];
+            pages.forEach(p => {
+                document.getElementById('page' + p).classList.remove('active');
+                document.getElementById('nav' + p).classList.remove('active');
+            });
+            document.getElementById('page' + tabName).classList.add('active');
+            document.getElementById('nav' + tabName).classList.add('active');
+
+            const titles = {
+                'Home': '\u{1F916} PromptHub AI',
+                'Builder': '\u{2699}\u{FE0F} Сборщик промтов',
+                'Catalog': '\u{1F4DA} Каталог промтов',
+                'Saved': '\u{1F4BE} Моя коллекция',
+                'Pro': '\u{1F451} PRO-Лаборатория'
+            };
+            document.getElementById('topTitle').innerText = titles[tabName];
+
+            if (tabName === 'Catalog') renderCatalog();
+            if (tabName === 'Saved') renderSaved();
+        }
+
+        function goToCategory(catName) {
+            switchTab('Catalog');
+            currentCat = catName;
+            const pills = document.querySelectorAll('.cat-pill');
+            pills.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.innerText === catName) btn.classList.add('active');
+            });
+            renderCatalog();
+        }
+        function filterCat(el, cat) {
+            currentCat = cat;
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            renderCatalog();
+        }
+
+        function renderCatalog() {
+            const query = (document.getElementById('searchInput').value || '').toLowerCase();
+            const list = document.getElementById('catalogList');
+            list.innerHTML = '';
+
+            const filtered = promptsData.filter(item => {
+                const matchCat = (currentCat === 'Все') || (item.cat === currentCat);
+                const matchSearch = item.title.toLowerCase().includes(query) || item.text.toLowerCase().includes(query);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px; font-size:13px;">Ничего не найдено</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'p-card';
+                card.innerHTML = `
+                    <div class="p-top">
+                        <span class="p-tag">${item.cat}</span>
+                        <span style="font-size:10px; color:#64748b;">${item.howTo}</span>
+                    </div>
+                    <h4 class="p-title" onclick="openModalById(${item.id})">${item.title}</h4>
+                    <p class="p-preview" onclick="openModalById(${item.id})">${item.text.slice(0, 95)}...</p>
+                    <div class="p-actions">
+                        <button class="btn-small" onclick="openModalById(${item.id})">Открыть</button>
+                        <button class="btn-small" onclick="quickCopy(${item.id}, this)">Копировать</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function buildPrompt() {
+            const role = document.getElementById('bRole').value;
+            const task = document.getElementById('bTask').value;
+            const tone = document.getElementById('bTone').value;
+            const topic = document.getElementById('bTopic').value.trim() || 'мой проект';
+
+            const result = `Выступи в роли ${role}. Твоя задача — ${task} по теме: «${topic}». Пиши в ${tone} стиле. Структурируй ответ по пунктам, избегай общих фраз и дай конкретные практические рекомендации.`;
+            document.getElementById('builtText').innerText = result;
+            document.getElementById('builderResult').style.display = 'block';
+        }
+
+        function copyBuiltPrompt(btn) {
+            copyToClipboard(document.getElementById('builtText').innerText, btn);
+        }
+
+        function copyToClipboard(text, btnEl) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+            if (btnEl) {
+                const old = btnEl.innerText;
+                btnEl.innerText = 'Скопировано!';
+                setTimeout(() => { btnEl.innerText = old; }, 1200);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+
+        function quickCopy(id, btnEl) {
+            const item = promptsData.find(p => p.id === id);
+            if (item) copyToClipboard(item.text, btnEl);
+        }
+
+        function openModalById(id) {
+            const item = promptsData.find(p => p.id === id);
+            if (!item) return;
+            document.getElementById('mTag').innerText = item.cat;
+            document.getElementById('mTitle').innerText = item.title;
+            document.getElementById('mHowTo').innerText = 'Подходит для: ' + item.howTo;
+            document.getElementById('mText').innerText = item.text;
+            activeModalText = item.text;
+            document.getElementById('promptModal').style.display = 'flex';
+        }
+
+        function copyFromModal() {
+            copyToClipboard(activeModalText, null);
+            alert('Промт скопирован в буфер обмена!');
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'promptModal') {
+                document.getElementById('promptModal').style.display = 'none';
+            }
+        }
+
+        function saveCustomPrompt() {
+            const title = document.getElementById('newPromptTitle').value.trim();
+            const body = document.getElementById('newPromptBody').value.trim();
+            if (!title || !body) {
+                alert('Заполните название и текст промта');
+                return;
+            }
+            const saved = JSON.parse(localStorage.getItem('my_prompts_v2') || '[]');
+            saved.unshift({ title, body });
+            localStorage.setItem('my_prompts_v2', JSON.stringify(saved));
+            document.getElementById('newPromptTitle').value = '';
+            document.getElementById('newPromptBody').value = '';
+            renderSaved();
+        }
+
+        function renderSaved() {
+            const list = document.getElementById('mySavedList');
+            const saved = JSON.parse(localStorage.getItem('my_prompts_v2') || '[]');
+            if (saved.length === 0) {
+                list.innerHTML = '<div style="color:#64748b; font-size:12px;">У вас пока нет сохранённых шаблонов.</div>';
+                return;
+            }
+            list.innerHTML = '';
+            saved.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'p-card';
+                div.innerHTML = `
+                    <h4 class="p-title">${item.title}</h4>
+                    <p class="p-preview">${item.body}</p>
+                    <div class="p-actions">
+                        <button class="btn-small" onclick="copyCustom(${idx}, this)">Копировать</button>
+                        <button class="btn-small" style="color:#f87171; border-color:rgba(248,113,113,0.35);" onclick="deleteCustom(${idx})">Удалить</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function copyCustom(idx, btn) {
+            const saved = JSON.parse(localStorage.getItem('my_prompts_v2') || '[]');
+            if (saved[idx]) copyToClipboard(saved[idx].body, btn);
+        }
+
+        function deleteCustom(idx) {
+            const saved = JSON.parse(localStorage.getItem('my_prompts_v2') || '[]');
+            saved.splice(idx, 1);
+            localStorage.setItem('my_prompts_v2', JSON.stringify(saved));
+            renderSaved();
+        }
+
+        async function buyPromptPro() {
+            const btn = document.getElementById('proPayBtn');
+            const oldHtml = btn.innerHTML;
+            btn.innerText = "Загрузка...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('https://github.io' + Date.now());
+                const data = await res.json();
+                const payUrl = data['prompt_pro'];
+
+                if (payUrl && payUrl.startsWith('http')) {
+                    window.location.href = payUrl;
+                    return;
+                }
+            } catch (e) {}
+
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
+            alert("Онлайн-оплата PRO-Лаборатории (399 руб.) через ЮKassa сейчас на финальной активации. Для мгновенного доступа напишите в поддержку: @kristalab_dev");
+        }
+
+        function openLegalDoc(type) {
+            const titleEl = document.getElementById('mTitle');
+            const textEl = document.getElementById('mText');
+            const tagEl = document.getElementById('mTag');
+            const howEl = document.getElementById('mHowTo');
+
+            if (tagEl) tagEl.innerText = "Документ";
+            if (howEl) howEl.innerText = "Юридическая информация сервиса PromptHub AI";
+
+            if (type === 'oferta') {
+                if (titleEl) titleEl.innerText = "Публичная оферта";
+                if (textEl) textEl.innerText = "Настоящий документ является официальным предложением (офертой) самозанятого Войцеховской Кристины (ИНН 732510458960) о предоставлении доступа к закрытому разделу «PRO-Лаборатория ИИ» приложения PromptHub AI.\n\n1. Стоимость доступа составляет 399 руб. (единовременно) через платёжный сервис ЮKassa.\n2. Доступ к закрытым связкам и шаблонам открывается сразу после подтверждения оплаты.\n3. Поддержка и возврат: @kristalab_dev, aristarkhovna777kris@gmail.com.";
+            } else {
+                if (titleEl) titleEl.innerText = "Политика конфиденциальности";
+                if (textEl) textEl.innerText = "Приложение PromptHub AI не собирает и не передаёт третьим лицам личные заметки и сохранённые шаблоны пользователей — они хранятся локально в памяти вашего устройства.\n\nОбработка платёжных реквизитов при оплате PRO-доступа выполняется исключительно на защищённой стороне сервиса ЮKassa по стандарту PCI DSS.";
+            }
+            activeModalText = textEl.innerText;
+            document.getElementById('promptModal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
